@@ -13,10 +13,13 @@ from urllib.parse import urlparse
 
 def init_spider(connection_string):
     con = urlparse(connection_string)
+
     if con.scheme == 'postgresql':
         return PostgreSpider(connection_string)
-    else:
+    elif con.scheme == 'mysql':
         return MysqlSpider(connection_string)
+    else:
+        return Exception("Cannot read scheme")
 
 
 class RequestManager(models.Manager):

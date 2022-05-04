@@ -175,4 +175,27 @@ class MysqlSpider:
             col_comments[col[0]] = [col[0], col[8].decode('utf-8')]
         return col_comments
 
+    def get_columns_type_from_table(self, table_name, column_name):
+        sql = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name ='" + table_name + "' and column_name = '" + column_name + "'; "
+        with self.connection.cursor() as cursor:
+            cursor.execute(sql)
+            record = cursor.fetchall()
+        return record[0][0]
+
+
+    def get_comments_from_table(self, table_name):
+        sql = "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_name='" + table_name + "'; "
+        with self.connection.cursor() as cursor:
+            cursor.execute(sql)
+            record = cursor.fetchall()
+        return record[0][0]
+
+    def get_database_info(self):
+        return {
+            'db_name': self.db_name,
+            'user': self.user,
+            'host': self.host,
+            'port': self.port
+        }
+
 # {'id': None, 'response': 'The response from spider'}
