@@ -1,7 +1,11 @@
+from venv import logger
+
 import psycopg2
 from django.db import models
 from urllib.parse import urlparse
 from mysql.connector import connect, Error
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class Spider:
@@ -94,12 +98,20 @@ class PostgreSpider:
 
         return col_comments
 
+    """
+      Метод получения комментариев к таблице
+    """
+
     def get_comments_from_table(self, table_name):
 
-        sql = "select obj_description('" + table_name + "'::regclass) as comment;"
+        sql = "SELECT obj_description('" + table_name + "'::regclass) AS comment;"
         self.cursor.execute(sql)
         record = self.cursor.fetchall()
         return record[0][0]
+
+    """
+      Метод получения данных о БД, пользователе
+    """
 
     def get_database_info(self):
         return {
@@ -115,7 +127,7 @@ class MysqlSpider:
     user = ''
     password = ''
     host = ''
-    port = 5432
+    port = 3306
     cursor = ''
 
     SPIDER_ID = 2
@@ -165,6 +177,10 @@ class MysqlSpider:
             i = i + 1
         return columns
 
+    """
+       Метод получения комментариев к колонке таблицы
+    """
+
     def get_comments_from_table_filed(self, table_name):
         sql = "SHOW FULL COLUMNS FROM " + table_name + ";"
         with self.connection.cursor() as cursor:
@@ -175,6 +191,10 @@ class MysqlSpider:
             col_comments[col[0]] = [col[0], col[8].decode('utf-8')]
         return col_comments
 
+    """
+        Метод получения типов колонок таблицы
+    """
+
     def get_columns_type_from_table(self, table_name, column_name):
         sql = "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name ='" + table_name + "' and column_name = '" + column_name + "'; "
         with self.connection.cursor() as cursor:
@@ -182,6 +202,9 @@ class MysqlSpider:
             record = cursor.fetchall()
         return record[0][0]
 
+    """
+      Метод получения комментариев к таблице
+    """
 
     def get_comments_from_table(self, table_name):
         sql = "SELECT table_comment FROM INFORMATION_SCHEMA.TABLES WHERE table_name='" + table_name + "'; "
@@ -190,6 +213,10 @@ class MysqlSpider:
             record = cursor.fetchall()
         return record[0][0]
 
+    """
+      Метод получения данных о БД, пользователе
+    """
+
     def get_database_info(self):
         return {
             'db_name': self.db_name,
@@ -197,5 +224,3 @@ class MysqlSpider:
             'host': self.host,
             'port': self.port
         }
-
-# {'id': None, 'response': 'The response from spider'}

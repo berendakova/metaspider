@@ -62,12 +62,13 @@ class RequestService:
             metadata['tables'][table] = dict()
             metadata['tables'][table]['columns'] = dict()
             for key, value in columns_comments.items():
-                column_comment = json.loads(value[1]) if value[1] else None
+                column_comment = json.loads(value[1]) if value[1] else {}
                 metadata['tables'][table]['columns'][key] = {
                     'comment': column_comment,
                     'type': spider.get_columns_type_from_table(table, key)
                 }
+            table_comment = spider.get_comments_from_table(table)
+            metadata['tables'][table]['table_comment'] = json.loads(table_comment) if table_comment else {}
 
-            metadata['tables'][table]['table_comment'] = json.loads(spider.get_comments_from_table(table))
 
         return {'metadata': metadata, 'database': spider.get_database_info()}

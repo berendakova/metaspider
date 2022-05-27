@@ -28,19 +28,24 @@ class SaveRequest(APIView):
 class GetUserRequests(APIView):
 
     def post(self, request):
-        user_id = 1
-        user = apps.get_model('authentication', 'User').objects.get(id=user_id)
+        user = apps.get_model('authentication', 'User').objects.get(id=request.user.id)
         requests = user.request_set.all()
-        data = {}
+        data = dict()
         for request in requests:
             data[request.id] = {
-                'date_from': request.date_from,
-                'date_to': request.date_to,
-                'type': request.type.name,
-                'metadata': request.metadata.response
+                'id': request.id,
+                'connection_string': request.connection_string,
+                'date': request.created_at
             }
 
         return Response(data, status=status.HTTP_200_OK)
+
+
+class GetOldData(APIView):
+    def post(self, request):
+        requestObj = apps.get_model('request', 'Request').objects.get(id=request.data['id'])
+        metadata = apps.get_model('metadata', 'Metadata').objects.get(id=requestObj.metadata_id)
+        return Response(metadata.response, status=status.HTTP_200_OK)
 
 
 class DeleteUserRequest(APIView):
